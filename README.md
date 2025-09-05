@@ -1,1 +1,0 @@
-# Giaic_openai_sdk_assignments
