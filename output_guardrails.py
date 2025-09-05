@@ -43,7 +43,7 @@ guardrail_agent = Agent(
     output_type=MathHomeworkOutput
 )
 
-# 
+# output guardrail function to check if output is political content
 @output_guardrail
 async def math_guardrail(  
     ctx: RunContextWrapper, agent: Agent, output: MessageOutput
@@ -55,6 +55,7 @@ async def math_guardrail(
         tripwire_triggered= not result.final_output.is_math,
 )
 
+# input guardrail function to check if input is math homework
 @input_guardrail
 async def math_homework_guardrail(ctx: RunContextWrapper[None], agent: Agent, input: str | list[TResponseInputItem]) -> GuardrailFunctionOutput:
     result = await Runner.run(guardrail_agent, input, context=ctx.context)
@@ -65,6 +66,7 @@ async def math_homework_guardrail(ctx: RunContextWrapper[None], agent: Agent, in
         tripwire_triggered=not result.final_output.is_math_homework,  
     )
 
+# main agent with input and output guardrails
 agent = Agent(
     name="math expert agent",
     instructions="You are an expert in mathematics. Answer only math homework related questions.",
@@ -74,6 +76,7 @@ agent = Agent(
     model="gemini-2.0-flash",
 )
 
+# main function running the agent with a non-math question to trigger the guardrail 
 async def main():
     try:
         await Runner.run(agent, "who is the founder of pakistan?")
@@ -84,5 +87,6 @@ async def main():
     except OutputGuardrailTripwireTriggered as e:
         print("Guardrail was triggered. Stopping execution.")
         print(f"Guardrail output: {e}")
+
 
 asyncio.run(main())
